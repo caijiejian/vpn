@@ -1,0 +1,71 @@
+
+<button class="btn btn-sm btn-default btn-refresh" style="margin-left: 10px;" onclick="self.location.reload()"><i class="fa fa-refresh"></i> 刷新</button>
+<button class="btn btn-sm btn-info btn-add" style="margin-left: 10px;" ><span class="glyphicon glyphicon-plus"></span> 添加标签</button>
+<table id="demo" lay-filter="test"></table>
+
+<script type="text/html" id="tableBtn">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+            class="layui-icon layui-icon-edit"></i>编辑</a>
+    {{#  if(d.state == 1){ }}
+    <a class="layui-btn layui-btn-xs btn-end"  lay-event="disable" style="background-color: #FCB43D;"><i class="layui-icon">&#x1006;</i>禁用</a>
+    {{#  } else { }}
+    <a class="layui-btn layui-btn-xs btn-end"  lay-event="enable" style="background-color: #07BC69;"><i class="layui-icon">&#xe605;</i>启用</a>
+    {{#  } }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+            class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+
+        //第一个实例
+        table.render({
+
+            elem: '#demo'
+            ,height: 312
+            ,where:{id:'123'}//传入参数
+            ,url: '/demo/table/user/' //数据接口
+            ,page: true //开启分页
+            ,even: true //开启隔行背景
+            ,request:{
+                pageName:'curr'//当前页码
+                ,limitName:'nums'//分页数
+            }
+            // ,initSort{//表格显示顺序
+            //     field:''
+            //     ,type:'desc'
+            // }
+            ,parseData:function(res){//res返回的数据
+                return{
+                    "code": res.status, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.total, //解析数据长度
+                    "data": res.data.item //解析数据列表
+                };
+            }
+            ,cols: [[ //表头
+                {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
+                ,{field: 'tagName', title: '入口名', width:80}
+                ,{field: 'sort', title: '排序', width:80, sort: true}
+                ,{field: 'creatTime', title: '创建时间', width:80}
+                ,{field: 'status', title: '状态', width: 80}
+                ,{field: 'experience', title: '操作', toolbar:'#tableBtn',width: 177, sort: true}
+
+            ]]
+            ,done: function(res, curr, count){
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                console.log(res);
+
+                //得到当前页码
+                console.log(curr);
+
+                //得到数据总量
+                console.log(count);
+            }
+
+        });
+
+    });
+</script>
+

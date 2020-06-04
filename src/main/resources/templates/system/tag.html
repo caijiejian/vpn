@@ -1,0 +1,122 @@
+
+<table id="demo" lay-filter="test"></table>
+
+<script type="text/html" id="tableBtn">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+            class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+            class="layui-icon layui-icon-delete"></i>删除</a>
+</script>
+<script type="text/html" id="toolbar">
+    <input type="text" class="form-control input-sm m-b-xs" id="search_input" placeholder="描述关键字..." style="display: inline-block;width: 25%;">
+    <button class="layui-btn layui-btn-sm" lay-event="search" style="margin-left: 10px;"><i class="fa fa-search"></i> 搜索</button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" style="margin-left: 10px;" lay-event="flush"><i class="fa fa-refresh"></i> 刷新</button>
+    <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add" style="margin-left: 10px;" ><span class="glyphicon glyphicon-plus"></span> 添加标签</button></script>
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+
+        //第一个实例
+        table.render({
+
+            elem: '#demo'
+            ,height: 312
+            ,where:{id:'123'}//传入参数
+            ,url: '/demo/table/user/' //数据接口
+            ,page: true //开启分页
+            ,even: true //开启隔行背景
+            ,toolbar:'#toolbar'
+            ,request:{
+                pageName:'curr'//当前页码
+                ,limitName:'nums'//分页数
+            }
+            // ,initSort{//表格显示顺序
+            //     field:''
+            //     ,type:'desc'
+            // }
+            ,parseData:function(res){//res返回的数据
+                return{
+                    "code": res.status, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.total, //解析数据长度
+                    "data": res.data.item //解析数据列表
+                };
+            }
+            ,cols: [[ //表头
+                {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
+                ,{field: 'tagName', title: '标签名', width:80}
+                ,{field: 'score', title: '热度', width:80, sort: true}
+                ,{field: 'creatTime', title: '创建时间', width:80}
+                ,{field: 'status', title: '状态', width: 80}
+                ,{field: 'experience', title: '操作', toolbar:'#tableBtn',width: 177, sort: true}
+
+            ]]
+            ,done: function(res, curr, count){
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                console.log(res);
+
+                //得到当前页码
+                console.log(curr);
+
+                //得到数据总量
+                console.log(count);
+            }
+
+        });
+        table.on('toolbar(test)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch(obj.event){
+                case 'add':
+                    layer.msg('添加');
+                    break;
+                case 'search':
+                    layer.msg('删除');
+                    break;
+                case 'flush':
+                    layer.msg('刷新成功');
+                    break;
+            };
+        });
+        table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+
+            if(layEvent === 'detail'){ //查看
+                //do somehing
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除行么', function(index){
+                    obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                    layer.close(index);
+                    //向服务端发送删除指令
+                });
+            } else if(layEvent === 'edit'){ //编辑
+                //do something
+
+                //同步更新缓存对应的值
+                obj.update({
+                    username: '123'
+                    ,title: 'xxx'
+                });
+            } else if(layEvent === 'LAYTABLE_TIPS'){
+                layer.alert('Hi，头部工具栏扩展的右侧图标。');
+            }
+        });
+    });
+
+
+    $(function () {
+        $(".btn-add").click(function() {
+            layer.open({
+                type: 2,
+                title: '添加标签',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['65%', '420px'],
+                content: '/test.html'
+            });
+        });
+    })
+
+</script>
